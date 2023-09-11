@@ -1,2 +1,3 @@
-# Project duyệt tìm phần tử trên các trang web sử dụng ngôn ngữ python cùng thư viện Selenium
-Hello world
+# My first project
+Selenium Python
+Bot find element in browser
