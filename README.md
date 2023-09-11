@@ -1,3 +1,2 @@
-# My first project
-Selenium Python
-Bot find element in browser
+# Bot made by slenium python
+Bot auto find element in browser
