@@ -6,6 +6,9 @@ from urllib.parse import urlparse
 import re
 import json
 import sys
+import time
+import traceback
+
 
 # Hàm kiểm tra các phần tử đăng nhập
 
@@ -61,6 +64,8 @@ def check_brand(brand_name, proxy):
         search_result = driver.find_element(By.CSS_SELECTOR, "h3")
         search_result.click()
 
+        time.sleep(1)
+
         # Lấy HTML của trang web sau khi click
         page_after_click_html = driver.page_source
 
@@ -100,19 +105,21 @@ def check_brand(brand_name, proxy):
         return result_item
 
     except Exception as e:
+        error_message = str(e)
+        traceback.print_exc()  # In thông tin lỗi ra console
         return {
             "brand_name": brand_name,
             "status": "error",
             "data": {
-                "error_message": str(e),
+                "error_message": error_message,
             }
         }
 
 
 def main():
     try:
-        # input_array = sys.argv[1:]
-        input_array = ['sobel-skin', 'youn-beauty']
+        input_array = sys.argv[1:]
+        # input_array = ['neverwinter']
         result_array = []
 
         proxy_list = [
@@ -145,10 +152,13 @@ def main():
         result_json = json.dumps(result_array, indent=4)
         print(result_json)
 
-    except Exception as e:
+    except Exception as _:
         with open("error.log", "w") as log_file:
-            log_file.write(str(e))
+            traceback.print_exc(file=log_file)
 
 
 if __name__ == "__main__":
     main()
+
+
+# made by DNA
