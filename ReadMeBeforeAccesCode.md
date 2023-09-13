@@ -9,4 +9,4 @@ không và nếu có thể thì có link affiliate không.
 Chương trình ra đời nhằm phục vụ hệ thống lọc hàng trăm nghìn tên brand, tìm kiếm các brand có tiềm năng
 làm đối tác với công ty.
 
-Chương trình hoàn thành ngày 9/11/2023
+Chương trình hoàn thành ngày 13/11/2023 và sẽ còn update trong tương lai
