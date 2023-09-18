@@ -225,8 +225,7 @@ def check_brand(brand_name, proxy):
 
 def main():
     try:
-        # input_array = sys.argv[1:]
-        input_array = ['vitargo']
+        input_array = sys.argv[1:]
         proxy_list = [
             "38.154.99.223:8800",
             "38.154.99.148:8800",
