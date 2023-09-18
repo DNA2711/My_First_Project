@@ -11,11 +11,11 @@ import sys
 
 
 # Định nghĩa các danh sách từ khóa
-login_keywords = ["sign up", "sign in", "log in", "signup", "login", "Account", "log in/sign up",
-                  "subscribe", "ACCOUNT", "member", "join now", "join us", "register", "NEWSLETTER", "my account"]
+login_keywords = ["sign up", "sign-up", "signup", "sign in", "log-in", "log in", "login", "Account",
+                  "subscribe", "ACCOUNT", "member", "join now", "john-now", "join us", "john-us", "register", "NEWSLETTER", "my account", "my-account", "Get a demo", "get-a-demo", "login/sign up"]
 
 login_links_keywords = ["login", "Log in", "sign in", "account", "my account", "LOG IN", "ACCOUNT",
-                        "register", "sign up", "sigup", "signin", "log in/sign up", "Register", "LOGIN"]
+                        "register", "sign up", "sigup", "signin", "log in/sign up", "Register", "LOGIN", "Get a demo"]
 
 affiliate_keywords = ["affiliate", "Affiliate", "AFFILIATE"]
 
@@ -29,9 +29,8 @@ contact_keywords = ["Contact", "contact",
 
 term_keywords = ["Terms", "terms", "TERMS", "Terms & Conditions"]
 
+
 # Hàm kiểm tra các phần tử đăng nhập
-
-
 def check_login_elements(content):
     soup = BeautifulSoup(content, "html.parser")
     regex_pattern = re.compile(
@@ -39,9 +38,14 @@ def check_login_elements(content):
 
     matching_elements = []  # Danh sách để lưu trữ các thẻ khớp
 
-    for tag in soup.find_all(['a', 'b', 'p', 'button', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'div']):
-        if any(keyword in tag.get_text() for keyword in login_keywords) or regex_pattern.search(str(tag)):
-            matching_elements.append(tag)
+    for tag in soup.find_all(['a', 'b', 'button', 'span', 'div', 'input']):
+        text = tag.get_text()
+        # Lấy thuộc tính href của phần tử, nếu không có thì lấy chuỗi rỗng
+        href = tag.get('href', '')
+        if any(keyword in text for keyword in login_keywords) or regex_pattern.search(text) or any(keyword in href for keyword in login_keywords):
+            # Giới hạn độ dài của đoạn văn bản dưới 15 ký tự
+            if len(text) <= 15:
+                matching_elements.append(tag)
 
     return matching_elements
 
@@ -105,16 +109,18 @@ def check_brand(brand_name, proxy):
         chrome_options.add_argument('--proxy-server=http://' + proxy_address)
 
         # Thêm tùy chọn --headless cho chế độ headless
-        chrome_options.add_argument('--headless')
-
+        # chrome_options.add_argument('--headless')
         # Khởi tạo trình duyệt
         driver = webdriver.Chrome(options=chrome_options)
 
         # Mã hóa brand_name thành URL an toàn
         encoded_brand_name = quote_plus(brand_name)
 
-        url_link = f"https://www.google.com/search?q={encoded_brand_name}+official+website"
+        url_link = f"https://google.com/search?q={encoded_brand_name}+official+website"
         driver.get(url_link)
+
+        # Chờ cho trang web tải hoàn tất
+        time.sleep(5)  # Đợi 5 giây hoặc nhiều hơn nếu cần
 
         # Tìm trang đầu tiên trong kết quả tìm kiếm và click vào nó
         search_result = driver.find_element(By.CSS_SELECTOR, "h3")
@@ -219,10 +225,23 @@ def check_brand(brand_name, proxy):
 
 def main():
     try:
-        input_array = sys.argv[1:]
-        result_array = []
-
+        # input_array = sys.argv[1:]
+        input_array = ['vitargo']
         proxy_list = [
+            "38.154.99.223:8800",
+            "38.154.99.148:8800",
+            "38.154.99.255:8800",
+            "38.154.99.198:8800",
+            "38.154.99.151:8800",
+            "38.154.99.186:8800",
+            "38.154.99.158:8800",
+            "38.154.99.208:8800",
+            "38.154.99.138:8800",
+            "38.154.99.189:8800",
+            "38.154.99.216:8800",
+            "38.154.99.183:8800",
+            "38.154.99.222:8800",
+
             "194.26.176.221:8800",
             "194.26.177.235:8800",
             "194.26.177.113:8800",
@@ -234,20 +253,54 @@ def main():
             "194.26.177.250:8800",
             "194.26.176.67:8800",
             "192.126.175.194:8800",
-            "192.126.175.218:8800"
+            "192.126.175.218:8800",
+
+            '38.153.192.39:8800',
+            '38.153.192.79:8800',
+            '45.66.238.155:8800',
+            '45.66.238.84:8800',
+            '45.66.238.210:8800',
+            '154.9.54.137:8800',
+            '154.9.54.127:8800',
+            '193.168.182.247:8800',
+            '38.153.160.52:8800',
+            '80.65.222.240:8800',
+            '193.168.182.227:8800',
+            '38.153.192.102:8800',
+            '45.66.238.59:8800',
+            '80.65.222.228:8800',
+            '154.9.54.85:8800',
+            '38.153.160.202:8800',
+            '193.168.182.193:8800',
+            '38.153.160.187:8800',
+            '193.168.182.130:8800',
+            '38.153.192.80:8800',
+            '80.65.222.167:8800',
+            '154.9.54.83:8800',
+            '38.153.160.178:8800',
+            '80.65.222.195:8800',
+            '38.153.160.41:8800'
         ]
 
-        max_workers = len(proxy_list)
+        result_array = []
+        batch_size = 12  # Số lượng proxy mỗi lần chạy
+        total_proxies = len(proxy_list)
+        proxy_index = 0  # Vị trí ban đầu của proxy trong danh sách
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            brand_index = 0
-            while brand_index < len(input_array):
-                proxy_batch = proxy_list[:max_workers]
-                brand_batch = input_array[brand_index:brand_index + max_workers]
+        with ThreadPoolExecutor(max_workers=batch_size) as executor:
+            while proxy_index < total_proxies:
+
+                # Tạo batch proxy cho lần chạy hiện tại
+                proxy_batch = proxy_list[proxy_index:proxy_index + batch_size]
+                brand_batch = input_array[proxy_index:proxy_index + batch_size]
+
+                # Sử dụng ThreadPoolExecutor để chạy các tác vụ đồng thời
                 results = list(executor.map(
                     check_brand, brand_batch, proxy_batch))
                 result_array.extend(results)
-                brand_index += max_workers
+
+                # Tăng biến đếm proxy_index
+                proxy_index += batch_size
 
         result_json = json.dumps(result_array, indent=4)
         print(result_json)

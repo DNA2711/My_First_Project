@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\DNA\OneDrive - Corp\Project\GitHub\My_First_Project\BotAutoCheckElements.py", line 295, in main
+    brand_batch = input_array[proxy_index:proxy_index + batch_size]
+                  ^^^^^^^^^^^
+NameError: name 'input_array' is not defined
